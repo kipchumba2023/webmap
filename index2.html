@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Location Marker App</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder@1.13.0/dist/Control.Geocoder.css" />
+    <style>
+        #map {
+            height: 100vh;
+            width: 80%;
+            float: right;
+        }
+
+        #sidebar {
+            height: 100vh;
+            width: 20%;
+            float: right;
+            background-color: #042436;
+            display: flex;
+            flex-direction: column;
+            justify-content: normal;
+            align-items: normal;
+        }
+
+        #sidebar h2 {
+            font-size: 30px;
+            color: white;
+            display: block;
+            text-align: center;
+            user-select: none;
+        }
+
+        #sidebar ul li a {
+            display: block;
+            height: 100%;
+            width: 100%;
+            line-height: 30px;
+            font-size: 20px;
+            color: #ffffff;
+            box-sizing: border-box;
+            border-top: 50px;
+            border-bottom: 50px;
+            border-bottom-color: solid black;
+        }
+
+        #search {
+            margin: 10px;
+        }
+    </style>
+</head>
+<body>
+    <header class="header" style="background: #05324f;height: 15vh;">
+        <h1 style="text-align: center;">WEB MAPPING ASSIGNMENT</h1>
+        <h2 style="text-align: center;">KIRINYAGA COUNTY</h2>
+    </header>
+    <div class="content">
+        <div id="map"></div>
+        <div id="sidebar">
+            <div id="search">
+                <input type="text" id="search-input" placeholder="Search for a location">
+                <button id="search-button">Search</button>
+            </div>
+            <div id="sidebar">
+                <h2>ANALYSIS TOOLS</h2>
+                <ul>
+                    <li><a href="leaflet draw/Leaflet.draw-develop/docs/examples/full.html">DRAW FEATURES</a></li>
+                    <li><a href="leaflet-rotate-master/leaflet-rotate-master/test/index.html">MAP ROTATION AND ALIGNMENT</a></li>
+                    <li><a href="Leaflet.BigImage-master (2)/Leaflet.BigImage-master/examples/index.html">SAVE MAP AS PNG</a></li>
+                </ul>
+                <p>GROUP MEMBERS</p>
+            </div>
+        </div>
+        <form id="marker-form">
+            <label for="latitude">Latitude:</label>
+            <input type="text" id="latitude" required>
+            <label for "longitude">Longitude:</label>
+            <input type="text" id="longitude" required>
+            <label for="marker-name">Name:</label>
+            <input type="text" id="marker-name" required>
+            <label for="marker-description">Description:</label>
+            <input type="text" id="marker-description" required>
+            <button type="submit">Add Marker</button>
+        </form>
+        <div id="input-section">
+        </div>
+        <div id="output-section">
+        </div>
+    </div>
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet-control-geocoder@1.13.0/dist/Control.Geocoder.js"></script>
+    <script src="index2.js"></script>
+    <script>
+        var cloudmadeUrl = 'http://{s}.tile.cloudmade.com/BC9A493B41014CAABB98F0471D759707/997/256/{z}/{x}/{y}.png',
+            cloudmade = new L.TileLayer(cloudmadeUrl, {maxZoom: 18}),
+            map = new L.Map('map', {layers: [cloudmade], center: new L.LatLng(-37.7772, 175.2756), zoom: 15 });
+
+        var editableLayers = new L.FeatureGroup();
+        map.addLayer(editableLayers);
+
+        var MyCustomMarker = L.Icon.extend({
+            options: {
+                shadowUrl: null,
+                iconAnchor: new L.Point(12, 12),
+                iconSize: new L.Point(24, 24),
+                iconUrl: 'link/to/image.png'
+            }
+        });
+
+        var options = {
+            position: 'topright',
+            draw: {
+                polyline: {
+                    shapeOptions: {
+                        color: '#f357a1',
+                        weight: 10
+                    }
+                },
+                polygon: {
+                    allowIntersection: false, // Restricts shapes to simple polygons
+                    drawError: {
+                        color: '#e1e100', // Color the shape will turn when intersects
+                        message: '<strong>Oh snap!<strong> you can\'t draw that!' // Message that will show when intersect
+                    },
+                    shapeOptions: {
+                        color: '#bada55'
+                    }
+                },
+                circle: false, // Turns off this drawing tool
+                rectangle: {
+                    shapeOptions: {
+                        clickable: false
+                    }
+                },
+                marker: {
+                    icon: new MyCustomMarker()
+                }
+            },
+            edit: {
+                featureGroup: editableLayers, // REQUIRED!!
+                remove: false
+            }
+        };
+
+        var drawControl = new L.Control.Draw(options);
+        map.addControl(drawControl);
+
+        map.on(L.Draw.Event.CREATED, function (e) {
+            var type = e.layerType,
+                layer = e.layer;
+
+            if (type === 'marker') {
+                layer.bindPopup('A popup!');
+            }
+
+            editableLayers.addLayer(layer);
+        });
+    </script>
+</body>
+</html>
